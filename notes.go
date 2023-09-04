@@ -5,8 +5,8 @@ import (
 )
 
 type Note struct {
-	title   string
-	content string
+	Title   string
+	Content string
 }
 
 func (app App) getAllNotes() []Note {
@@ -17,7 +17,7 @@ func (app App) getAllNotes() []Note {
 	}
 	for rows.Next() {
 		var note Note
-		rows.Scan(&note.title, &note.content)
+		rows.Scan(&note.Title, &note.Content)
 		notes = append(notes, note)
 	}
 

@@ -37,10 +37,7 @@ func main() {
 
 	app := App{db: db}
 
-	notes := app.getAllNotes()
-	fmt.Printf("%+v\n", notes)
-
-	mux.Get("/", indexHandler)
+	mux.Get("/", app.indexHandler)
 
 	fmt.Println("Listening on port "+port)
 	log.Fatalln(http.ListenAndServe(":"+port, mux))

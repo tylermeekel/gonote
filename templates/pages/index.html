@@ -6,6 +6,10 @@
     <title>Testing!</title>
 </head>
 <body>
-    This is a test!
+    <ul>
+        {{range .}}
+            <li>title: {{.Title}} content: {{.Content}}</li>
+        {{end}}
+    </ul>
 </body>
 </html>

@@ -6,14 +6,16 @@ import (
 	"net/http"
 )
 
-//Pages
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+// Pages
+func (app App) indexHandler(w http.ResponseWriter, r *http.Request) {
+	notes := app.getAllNotes()
+
 	indexTemplate, err := template.ParseFiles("templates/pages/index.html")
-	if err != nil{
+	if err != nil {
 		fmt.Println("Error processing index template")
 		w.Write([]byte("Server error"))
 	}
-	indexTemplate.Execute(w, nil)
+	indexTemplate.Execute(w, notes)
 }
 
 //Components
