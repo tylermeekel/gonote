@@ -19,7 +19,7 @@ type App struct {
 }
 
 // initializeApp initializes the app database and routes and starts the HTTP server on the given port
-func initializeApp() (*chi.Mux, string){
+func startApp() {
 	mux := chi.NewMux()
 
 	//Select port from environment variable or default to :3000
@@ -33,6 +33,7 @@ func initializeApp() (*chi.Mux, string){
 	if postgresUri == "" {
 		log.Fatalln("Could not find Postgres connection URI in environment variable")
 	}
+	fmt.Println(postgresUri)
 
 	//Open DB using postgres driver
 	db, err := sql.Open("postgres", postgresUri)
@@ -51,7 +52,8 @@ func initializeApp() (*chi.Mux, string){
 	mux.Get("/", app.handleIndex)
 	mux.Mount("/notes", app.noteRouter())
 
-	return mux, port
+	fmt.Println("Listening on port " + port)
+	http.ListenAndServe(":"+port, mux)
 }
 
 // handleIndex renders the index.html file to the ResponseWriter
