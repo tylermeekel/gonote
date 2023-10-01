@@ -18,8 +18,8 @@ type App struct {
 	log *log.Logger
 }
 
-// startApp initializes the app database and routes and starts the HTTP server on the given port
-func startApp() {
+// initializeApp initializes the app database and routes and starts the HTTP server on the given port
+func initializeApp() (*chi.Mux, string){
 	mux := chi.NewMux()
 
 	//Select port from environment variable or default to :3000
@@ -48,15 +48,14 @@ func startApp() {
 	}
 
 	//Mount index handler, and router for notes
-	mux.Get("/", app.indexHandler)
+	mux.Get("/", app.handleIndex)
 	mux.Mount("/notes", app.noteRouter())
 
-	fmt.Println("Listening on port " + port)
-	log.Fatalln(http.ListenAndServe(":"+port, mux))
+	return mux, port
 }
 
-// indexHandler renders the index.html file sends it back as a response
-func (app App) indexHandler(w http.ResponseWriter, r *http.Request) {
+// handleIndex renders the index.html file to the ResponseWriter
+func (app App) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 	indexTemplate, err := template.ParseFiles("templates/pages/index.html")
 	if err != nil {
