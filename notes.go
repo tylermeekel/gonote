@@ -11,8 +11,11 @@ import (
 )
 
 type Note struct {
-	Title   string
-	Content string
+	ID        int
+	UserID    int
+	Title     string
+	Content   string
+	CreatedAt string
 }
 
 //Functions
@@ -31,7 +34,7 @@ func (app App) queryAllNotes() []Note {
 	var notes []Note
 	rows, err := app.db.Query("SELECT title, content FROM notes;")
 	if err != nil {
-		fmt.Println("error querying notes")
+		fmt.Println(err.Error())
 	}
 	for rows.Next() {
 		var note Note
@@ -47,7 +50,7 @@ func (app App) queryOneNoteByID(id int) Note {
 	var note Note
 	query := fmt.Sprintf("SELECT title, content FROM notes WHERE id = %d;", id)
 	row, err := app.db.Query(query)
-	if err != nil{
+	if err != nil {
 		fmt.Println("query error: " + query)
 		fmt.Println(err.Error())
 	}
@@ -60,28 +63,28 @@ func (app App) queryOneNoteByID(id int) Note {
 // handleGetAllNotes calls the queryAllNotes function and renders the returned notes to the ResponseWriter
 func (app App) handleGetAllNotes(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles("templates/components/notes.html")
-	if err != nil{
+	if err != nil {
 		w.Write([]byte("server error"))
 		fmt.Println("error parsing file")
 	}
 
 	notes := app.queryAllNotes()
 	t.Execute(w, notes)
-	
+
 }
 
 // handleGetNoteByID calls the queryNoteByID function and renders the returned note to the ResponseWriter
 func (app App) handleGetNoteByID(w http.ResponseWriter, r *http.Request) {
 	requestedId := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(requestedId)
-	if err != nil{
+	if err != nil {
 		w.Write([]byte("Requested id is not a number"))
 		return
 	}
-	
+
 	note := app.queryOneNoteByID(id)
 	res, err := json.Marshal(note)
-	if err != nil{
+	if err != nil {
 		fmt.Println(err.Error())
 	}
 
