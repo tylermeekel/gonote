@@ -1,8 +1,11 @@
-<div>
-    {{range .}}
-        <div style="background-color: pink;">
-            <h1>{{.Title}}</h1>
-            <p>{{.Content}}</p>
-        </div>
-    {{end}}
-</div>
+{{range .}}
+    <div style="background-color: pink;">
+        <h1>{{.Title}}</h1>
+        <p>{{.Content}}</p>
+        <ul>
+            <li>id: {{.ID}}</li>
+            <li>user_id: {{.UserID}}</li>
+            <li>created_at: {{.CreatedAt}}</li>
+        </ul>
+    </div>
+{{end}}

@@ -9,6 +9,11 @@
     <title>Testing!</title>
 </head>
 <body>
-    <main hx-get="/notes" hx-swap="innerHTML" hx-trigger="load"></main>
+    <form hx-post="/notes" hx-target="#notes" hx-swap="beforeend" hx-on::after-request="this.reset()">
+        <input type="text" name="title">
+        <input type="text" name="content">
+        <button type="submit">Submit</button>
+    </form>
+    <main id="notes" hx-get="/notes" hx-swap="innerHTML" hx-trigger="load"></main>
 </body>
 </html>
