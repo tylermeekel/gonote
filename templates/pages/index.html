@@ -1,19 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Testing!</title>
-</head>
-<body>
-    <form hx-post="/notes" hx-target="#notes" hx-swap="beforeend" hx-on::after-request="this.reset()">
-        <input type="text" name="title">
-        <input type="text" name="content">
-        <button type="submit">Submit</button>
+    <style>
+      #toast {
+        position: fixed;
+        top: 5px;
+        right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <form
+      hx-post="/notes"
+      hx-target="#notes"
+      hx-swap="beforeend"
+      hx-on::after-request="this.reset()"
+    >
+      <input type="text" name="title" />
+      <input type="text" name="content" />
+      <button type="submit">Submit</button>
     </form>
-    <main id="notes" hx-get="/notes" hx-swap="innerHTML" hx-trigger="load"></main>
-</body>
+    <main
+      id="notes"
+      hx-get="/notes"
+      hx-swap="innerHTML"
+      hx-trigger="load"
+    ></main>
+
+    <button hx-get="/toast?open=true" hx-target="#toast" hx-swap="outerHTML">
+      get toast!
+    </button>
+    <div id="toast"></div>
+  </body>
 </html>

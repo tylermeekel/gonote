@@ -56,6 +56,7 @@ func startApp() {
 	mux.Mount("/notes", app.noteRouter())
 	mux.Mount("/users", app.userRouter())
 	mux.Mount("/auth", app.authRouter())
+	mux.Get("/toast", app.handleToast)
 
 	fmt.Println("Listening on port " + port)
 	http.ListenAndServe(":"+port, mux)
@@ -70,4 +71,19 @@ func (app App) handleIndex(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Server error"))
 	}
 	indexTemplate.Execute(w, nil)
+}
+
+func (app App) handleToast(w http.ResponseWriter, r *http.Request) {
+	toastTemplate, err := template.ParseFiles("templates/components/toast.html")
+	if err != nil{
+		fmt.Println("error processing toast")
+		w.Write([]byte("Server error"))
+	}
+
+	isOpen := false
+	if r.URL.Query().Get("open") == "true"{
+		isOpen = true
+	}
+	
+	toastTemplate.Execute(w, isOpen)
 }
