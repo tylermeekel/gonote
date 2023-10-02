@@ -58,6 +58,10 @@ func startApp() {
 	mux.Mount("/auth", app.authRouter())
 	mux.Get("/toast", app.handleToast)
 
+	//Add static file server, pattern from Alex Edwards
+	fs := http.FileServer(http.Dir("./static"))
+	mux.Handle("/static/*", http.StripPrefix("/static/", fs))
+
 	fmt.Println("Listening on port " + port)
 	http.ListenAndServe(":"+port, mux)
 }
