@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 
 	"github.com/go-chi/chi/v5"
@@ -28,12 +29,14 @@ func startApp() {
 		port = "3000"
 	}
 
+	//Load .env if one exists
+	godotenv.Load()
+
 	//Find URI for Postgres connection
 	postgresUri := os.Getenv("GONOTE_POSTGRES_URI")
 	if postgresUri == "" {
 		log.Fatalln("Could not find Postgres connection URI in environment variable")
 	}
-	fmt.Println(postgresUri)
 
 	//Open DB using postgres driver
 	db, err := sql.Open("postgres", postgresUri)
