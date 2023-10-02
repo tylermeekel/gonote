@@ -54,6 +54,8 @@ func startApp() {
 	//Mount index handler, and router for notes
 	mux.Get("/", app.handleIndex)
 	mux.Mount("/notes", app.noteRouter())
+	mux.Mount("/users", app.userRouter())
+	mux.Mount("/auth", app.authRouter())
 
 	fmt.Println("Listening on port " + port)
 	http.ListenAndServe(":"+port, mux)
