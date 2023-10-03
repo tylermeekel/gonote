@@ -1,16 +1,14 @@
-{{if .}}
 <div
   id="toast"
-  hx-get="/toast?open=false"
-  hx-trigger="load delay:5s"
-  hx-swap="outerHTML"
+  hx-get="/freshtoast"
+  hx-swap="outerHTML swap:5s"
+  hx-trigger="load"
+  hx-swap-oob="outerHTML"
   style="
-    border: 2px solid black;
-    background-color: burlywood;
+    border: 2px solid darkgreen;
+    background-color: rgb(148, 255, 127);
+    color: darkgreen;
   "
 >
-  <h1>This is toast</h1>
+  <h1>{{.}}</h1>
 </div>
-{{else}}
-<div id="toast"></div>
-{{end}}

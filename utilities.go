@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 
@@ -46,7 +48,7 @@ func startApp() {
 	defer db.Close()
 
 	//Create new app struct to pass db connection
-	app := App{
+	app := &App{
 		db:  db,
 		log: log.Default(),
 	}
@@ -56,7 +58,7 @@ func startApp() {
 	mux.Mount("/notes", app.noteRouter())
 	mux.Mount("/users", app.userRouter())
 	mux.Mount("/auth", app.authRouter())
-	mux.Get("/toast", app.handleToast)
+	mux.Get("/freshtoast", app.handleEmptyToast)
 
 	//Add static file server, pattern from Alex Edwards
 	fs := http.FileServer(http.Dir("./static"))
@@ -67,7 +69,7 @@ func startApp() {
 }
 
 // handleIndex renders the index.html file to the ResponseWriter
-func (app App) handleIndex(w http.ResponseWriter, r *http.Request) {
+func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 	indexTemplate, err := template.ParseFiles("templates/pages/index.html")
 	if err != nil {
@@ -77,17 +79,37 @@ func (app App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	indexTemplate.Execute(w, nil)
 }
 
-func (app App) handleToast(w http.ResponseWriter, r *http.Request) {
+func sendToast(w http.ResponseWriter, message string) {
 	toastTemplate, err := template.ParseFiles("templates/components/toast.html")
-	if err != nil{
-		fmt.Println("error processing toast")
-		w.Write([]byte("Server error"))
+	if err != nil {
+		fmt.Println("Error parsing toast.html")
 	}
 
-	isOpen := false
-	if r.URL.Query().Get("open") == "true"{
-		isOpen = true
+	toastTemplate.Execute(w, message)
+}
+
+func sendErrorToast(w http.ResponseWriter, errorMessage string) {
+	errorTemplate, err := template.ParseFiles("templates/components/errorToast.html")
+	if err != nil {
+		fmt.Println("error processing errorToast.html")
 	}
-	
-	toastTemplate.Execute(w, isOpen)
+
+	errorTemplate.Execute(w, errorMessage)
+}
+
+func (app *App) handleEmptyToast(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("<div id=\"toast\"></div>"))
+}
+
+func signJWT(username string, expTime time.Time) (string, error){
+	claims := &jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(expTime),
+		Subject:   username,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+}
+
+func (app *App) handleTestJWT(w http.ResponseWriter, r *http.Request){
+
 }
