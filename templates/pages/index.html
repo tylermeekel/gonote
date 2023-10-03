@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+    <script src="/static/htmx.min.js"></script>
 
     <link rel="stylesheet" href="/static/style.css">
 
@@ -11,26 +11,18 @@
     <title>Testing!</title>
   </head>
   <body>
-    <form
-      hx-post="/notes"
-      hx-target="#notes"
-      hx-swap="beforeend"
-      hx-on::after-request="this.reset()"
-    >
-      <input type="text" name="title" />
-      <input type="text" name="content" />
+    <h1>Register</h1>
+    <form hx-post="/auth/register" hx-swap="none" hx-on::after-request="this.reset()">
+      <input type="text" name="username" id="username">
+      <input type="password" name="password" id="password">
       <button type="submit">Submit</button>
     </form>
-    <main
-      id="notes"
-      hx-get="/notes"
-      hx-swap="innerHTML"
-      hx-trigger="load"
-    ></main>
-
-    <button hx-get="/toast?open=true" hx-target="#toast" hx-swap="outerHTML">
-      get toast!
-    </button>
+    <h1>Login</h1>
+    <form hx-post="/auth/login" hx-swap="none" hx-on::after-request="this.reset()">
+      <input type="text" name="username" id="username">
+      <input type="password" name="password" id="password">
+      <button type="submit">Submit</button>
+    </form>
     <div id="toast"></div>
   </body>
 </html>
