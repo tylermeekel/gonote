@@ -15,11 +15,11 @@ type User struct {
 	Password []byte
 }
 
-func (app *App) userRouter() *chi.Mux {
-	router := chi.NewRouter()
+// func (app *App) userRouter() *chi.Mux {
+// 	router := chi.NewRouter()
 
-	return router
-}
+// 	return router
+// }
 
 func (app *App) authRouter() *chi.Mux {
 	router := chi.NewRouter()
@@ -29,6 +29,8 @@ func (app *App) authRouter() *chi.Mux {
 	return router
 }
 
+// getUserByUsername queries the database for a username and returns a User struct with the
+// information gathered
 func (app *App) getUserByUsername(username string) (User, error) {
 	var user User
 	row, err := app.db.Query("SELECT * FROM users WHERE username=$1", username)
@@ -41,9 +43,10 @@ func (app *App) getUserByUsername(username string) (User, error) {
 	return user, err
 }
 
-func (app *App) createUser(username string, password []byte) (User, error) {
+// createUser takes a username and password hash as input and inserts them into the database
+func (app *App) createUser(username string, passwordHash []byte) (User, error) {
 	var user User
-	row, err := app.db.Query("INSERT INTO users(username, password) VALUES($1, $2) RETURNING *", username, password)
+	row, err := app.db.Query("INSERT INTO users(username, password) VALUES($1, $2) RETURNING *", username, passwordHash)
 	if err != nil {
 		return user, err
 	}
@@ -54,6 +57,10 @@ func (app *App) createUser(username string, password []byte) (User, error) {
 	return user, nil
 }
 
+// handleRegisterUser takes the username and password from the form request.
+// It then hashes the password using bcrypt, and calls the createUser function
+// with the username and hashed password. If everything goes well it sends a toast
+// message back to the user to let them know.
 func (app *App) handleRegisterUser(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password, err := bcrypt.GenerateFromPassword([]byte(r.FormValue("password")), 10)
@@ -72,15 +79,19 @@ func (app *App) handleRegisterUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// handleLogin user takes the username and password from the form request.
+// It then queries the database for the given username, and checks the password
+// against the hash that is stored in the database. If the username exists in the database
+// and the hash matches, it then generates a JWT with a 10 minute lifetime, using the username
+// as part of the claims, and sends the JWT back as a cookie to the user.
 func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
-	isSuccessful := true
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
 	queriedUser, err := app.getUserByUsername(username)
 	if err != nil {
 		sendErrorToast(w, "Error: Internal Server Error")
-		isSuccessful = false
+		return
 	}
 
 	//Check hash and password and return an error if they do not match
@@ -90,10 +101,10 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//set expiration time and create JWT using username and expiration time and return error if there is
+	//set expiration time and create JWT using user ID and expiration time and return error if there is
 	//an error generating the jwt
 	expirationTime := time.Now().Add(10 * time.Minute)
-	signedString, err := signJWT(username, expirationTime)
+	signedString, err := signJWT(queriedUser.ID, expirationTime)
 	if err != nil {
 		app.log.Println(err.Error())
 		sendErrorToast(w, "Internal Server Error")
@@ -101,12 +112,12 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//set cookie using generated JWT and send toast message to inform user of correct login
-	if isSuccessful {
-		http.SetCookie(w, &http.Cookie{
-			Name:     "token",
-			Value:    signedString,
-			Expires:  expirationTime,
-		})
-		sendToast(w, "Logged in successfully")
-	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   signedString,
+		Expires: expirationTime,
+	})
+	sendToast(w, "Logged in successfully")
+
 }

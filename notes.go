@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -22,6 +21,8 @@ type Note struct {
 // noteRouter returns a router with the handlers for the "/notes" path
 func (app *App) noteRouter() http.Handler {
 	router := chi.NewRouter()
+
+	//Routes
 	router.Get("/", app.handleGetAllNotes)
 	router.Get("/{id}", app.handleGetNoteByID)
 	router.Post("/", app.handlePostNote)
@@ -30,9 +31,9 @@ func (app *App) noteRouter() http.Handler {
 }
 
 // getAllNotes gets all notes from the db connection and returns them as a list of notes
-func (app *App) getAllNotes() []Note {
+func (app *App) getAllNotes(userID int) []Note {
 	var notes []Note
-	rows, err := app.db.Query("SELECT * FROM notes")
+	rows, err := app.db.Query("SELECT * FROM notes WHERE user_id = $1", userID)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -47,9 +48,9 @@ func (app *App) getAllNotes() []Note {
 
 // getNoteByID takes an id as an argument and queries the db connection for a Note matching that id
 // and then returns a Note object
-func (app *App) getNoteByID(id int) Note {
+func (app *App) getNoteByID(userID, id int) Note {
 	var note Note
-	row, err := app.db.Query("SELECT * FROM notes WHERE id = $1", id)
+	row, err := app.db.Query("SELECT * FROM notes WHERE id = $1 AND user_id = $2", id, userID)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -85,45 +86,49 @@ func (app *App) postNote(userID int, title, content string) Note {
 
 // handleGetAllNotes calls the queryAllNotes function and renders the returned notes to the ResponseWriter
 func (app *App) handleGetAllNotes(w http.ResponseWriter, r *http.Request) {
-	notes := app.getAllNotes()
-	renderNotes(w, notes)
+	userID := getUserIDFromContext(r)
+	if userID == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	notes := app.getAllNotes(userID)
+	app.templates.ExecuteTemplate(w, "notes", notes)
 }
 
 // handleGetNoteByID calls the queryNoteByID function and renders the returned note to the ResponseWriter
 func (app *App) handleGetNoteByID(w http.ResponseWriter, r *http.Request) {
+	userID := getUserIDFromContext(r)
+	if userID == 0 {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
 	requestedId := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(requestedId)
 	if err != nil {
-		w.Write([]byte("Requested id is not a number"))
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	//Wrapped in note slice so that template is compatible with any number of notes
-	note := []Note{app.getNoteByID(id)}
-	renderNotes(w, note)
-	sendToast(w, "Testing if working :O")
+	note := app.getNoteByID(id, userID)
+
+	if note.UserID != userID {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	app.templates.ExecuteTemplate(w, "notes", note)
 }
 
 // handlePostNote collects title and content from form and calls the postNote function with them as arguments.
 // It then renders the returned note to the ResponseWriter
 func (app *App) handlePostNote(w http.ResponseWriter, r *http.Request) {
-	//TODO: add authentication to collect id
-	userID := 1
+	userID := getUserIDFromContext(r)
 	title := r.FormValue("title")
 	content := r.FormValue("content")
 
 	note := []Note{app.postNote(userID, title, content)}
-	renderNotes(w, note)
-}
-
-//Utilities
-
-func renderNotes(w http.ResponseWriter, notes []Note) {
-	t, err := template.ParseFiles("templates/components/notes.html")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("internal server error"))
-	}
-
-	t.Execute(w, notes)
+	app.templates.ExecuteTemplate(w, "notes", note)
 }
