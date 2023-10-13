@@ -1,0 +1,13 @@
+{
+  "name": "gonote",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tailwindcss build -o static/css/tailwind.css",
+    "watch": "tailwindcss build -o static/css/tailwind.css --watch"
+  },
+  "author": "",
+  "dependencies": {
+    "tailwindcss": "^3.3.3"
+  }
+}
