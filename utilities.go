@@ -83,11 +83,6 @@ func startApp() {
 	http.ListenAndServe(":"+port, mux)
 }
 
-// handleIndex renders the index.html file to the ResponseWriter
-func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
-	app.templates.ExecuteTemplate(w, "index", struct{Title string}{"Superman!"})
-}
-
 // sendToast takes a ResponseWriter and message string and sends back a toast
 // notification to the client front end using the toast template
 func sendToast(w http.ResponseWriter, message string) {

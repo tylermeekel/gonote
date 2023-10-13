@@ -121,3 +121,4 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 	sendToast(w, "Logged in successfully")
 
 }
+
