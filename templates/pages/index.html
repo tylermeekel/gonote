@@ -1,28 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <!-- HTMX -->
-    <script src="/static/htmx.min.js"></script>
-
-    <link rel="stylesheet" href="/static/style.css">
-
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Testing!</title>
-  </head>
-  <body>
-    <h1>Register</h1>
-    <form hx-post="/auth/register" hx-swap="none" hx-on::after-request="this.reset()">
-      <input type="text" name="username" id="username">
-      <input type="password" name="password" id="password">
-      <button type="submit">Submit</button>
-    </form>
-    <h1>Login</h1>
-    <form hx-post="/auth/login" hx-swap="none" hx-on::after-request="this.reset()">
-      <input type="text" name="username" id="username">
-      <input type="password" name="password" id="password">
-      <button type="submit">Submit</button>
-    </form>
-    <div id="toast"></div>
-  </body>
-</html>
+{{define "index"}}
+{{template "base_header" .Title}}
+<h1>This is a testing time!</h1>
+{{template "base_footer"}}
+{{end}}

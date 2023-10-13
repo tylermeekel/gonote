@@ -1,0 +1,28 @@
+{{define "base_header"}}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- HTMX -->
+        <script src="/static/htmx.min.js"></script>
+        <!-- Tailwind -->
+        <link rel="stylesheet" href="/static/css/tailwind.css">
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{.Title}}</title>
+    </head>
+    <body>
+        <header class=" flex w-screen h-20 border-b p-2 items-center justify-between">
+            <h1 class="font-semibold text-4xl">GoNote</h1>
+            <nav class="flex gap-4">
+                {{if .LoggedIn}}
+                <h2><a href="/notes">Notes</a></h2>
+                <h2><a href="/logout">Logout</a></h2>
+                {{else}}
+                <h2><a href="/login">Login</a></h2>
+                <h2><a href="/register">Register</a></h2>
+                {{end}}
+            </nav>
+        </header>
+{{end}}
+

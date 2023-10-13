@@ -1,3 +1,4 @@
+{{define "notes"}}
 {{range .}}
     <div style="background-color: pink;">
         <h1>{{.Title}}</h1>
@@ -8,4 +9,5 @@
             <li>created_at: {{.CreatedAt}}</li>
         </ul>
     </div>
+{{end}}
 {{end}}
