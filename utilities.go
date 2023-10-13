@@ -7,23 +7,35 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
 type App struct {
+	templates *template.Template
 	db  *sql.DB
 	log *log.Logger
 }
 
+type contextKey string
+const userIDKey contextKey = "userID"
+
 // initializeApp initializes the app database and routes and starts the HTTP server on the given port
 func startApp() {
 	mux := chi.NewMux()
+
+	//Recommended default middleware stack
+	mux.Use(middleware.RequestID)
+	mux.Use(middleware.RealIP)
+	mux.Use(middleware.Logger)
+	mux.Use(middleware.Recoverer)
+
+	//Custom middleware
+	mux.Use(checkAuthentication)
 
 	//Select port from environment variable or default to :3000
 	port := os.Getenv("PORT")
@@ -47,17 +59,20 @@ func startApp() {
 	}
 	defer db.Close()
 
+	//Parse all templates
+	templates := template.Must(template.ParseGlob("templates/*/*.html"))
+
 	//Create new app struct to pass db connection
 	app := &App{
+		templates: templates,
 		db:  db,
 		log: log.Default(),
 	}
 
 	//Mount index handler, and router for notes
 	mux.Get("/", app.handleIndex)
+	mux.Mount("/", app.authRouter())
 	mux.Mount("/notes", app.noteRouter())
-	mux.Mount("/users", app.userRouter())
-	mux.Mount("/auth", app.authRouter())
 	mux.Get("/freshtoast", app.handleEmptyToast)
 
 	//Add static file server, pattern from Alex Edwards
@@ -70,15 +85,11 @@ func startApp() {
 
 // handleIndex renders the index.html file to the ResponseWriter
 func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
-
-	indexTemplate, err := template.ParseFiles("templates/pages/index.html")
-	if err != nil {
-		fmt.Println("Error processing index template")
-		w.Write([]byte("Server error"))
-	}
-	indexTemplate.Execute(w, nil)
+	app.templates.ExecuteTemplate(w, "index", struct{Title string}{"Superman!"})
 }
 
+// sendToast takes a ResponseWriter and message string and sends back a toast
+// notification to the client front end using the toast template
 func sendToast(w http.ResponseWriter, message string) {
 	toastTemplate, err := template.ParseFiles("templates/components/toast.html")
 	if err != nil {
@@ -88,6 +99,8 @@ func sendToast(w http.ResponseWriter, message string) {
 	toastTemplate.Execute(w, message)
 }
 
+// sendErrorToast takes a ResponseWriter and message string and sends back am error toast
+// notification to the client front end using the toast template
 func sendErrorToast(w http.ResponseWriter, errorMessage string) {
 	errorTemplate, err := template.ParseFiles("templates/components/errorToast.html")
 	if err != nil {
@@ -97,19 +110,9 @@ func sendErrorToast(w http.ResponseWriter, errorMessage string) {
 	errorTemplate.Execute(w, errorMessage)
 }
 
+// handleEmptyToast is called after a toast message has timed out on the front end
+// it responds with an empty toast message to serve as a placeholder for the next
+// toast message.
 func (app *App) handleEmptyToast(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("<div id=\"toast\"></div>"))
-}
-
-func signJWT(username string, expTime time.Time) (string, error){
-	claims := &jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(expTime),
-		Subject:   username,
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
-}
-
-func (app *App) handleTestJWT(w http.ResponseWriter, r *http.Request){
-
 }
