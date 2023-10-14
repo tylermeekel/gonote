@@ -26,6 +26,7 @@ func (app *App) noteRouter() http.Handler {
 	router.Get("/", app.handleGetAllNotes)
 	router.Get("/{id}", app.handleGetNoteByID)
 	router.Post("/", app.handlePostNote)
+	router.Post("/{id}", app.handleUpdateNote)
 
 	return router
 }
@@ -48,14 +49,10 @@ func (app *App) getAllNotes(userID int) []Note {
 
 // getNoteByID takes an id as an argument and queries the db connection for a Note matching that id
 // and then returns a Note object
-func (app *App) getNoteByID(userID, id int) Note {
+func (app *App) getNoteByID(id, userID int) Note {
 	var note Note
-	row, err := app.db.Query("SELECT * FROM notes WHERE id = $1 AND user_id = $2", id, userID)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	row.Next()
-	err = row.Scan(&note.ID, &note.UserID, &note.Title, &note.Content, &note.CreatedAt)
+	row := app.db.QueryRow("SELECT * FROM notes WHERE id = $1 AND user_id = $2", id, userID)
+	err := row.Scan(&note.ID, &note.UserID, &note.Title, &note.Content, &note.CreatedAt)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -65,7 +62,7 @@ func (app *App) getNoteByID(userID, id int) Note {
 
 // postNote takes a user id, title and content as arguments and inserts a new note into the database
 // and then returns a Note object
-func (app *App) postNote(userID int, title, content string) Note {
+func (app *App) postNote(userID int, title, content string) Note{
 	var note Note
 
 	row, err := app.db.Query("INSERT INTO notes(user_id, title, content) VALUES($1, $2, $3) RETURNING *", userID, title, content)
@@ -80,6 +77,14 @@ func (app *App) postNote(userID int, title, content string) Note {
 	}
 
 	return note
+}
+
+func (app *App) updateNote(id, userID int, title, content string) {
+	row := app.db.QueryRow("UPDATE notes SET title = $1, content = $2 WHERE id = $3 AND user_id = $4", title, content, id, userID)
+	err := row.Scan()
+	if err != nil{
+		fmt.Printf(err.Error())
+	}
 }
 
 //Handlers
@@ -111,24 +116,42 @@ func (app *App) handleGetNoteByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//Wrapped in note slice so that template is compatible with any number of notes
 	note := app.getNoteByID(id, userID)
 
 	if note.UserID != userID {
-		w.WriteHeader(http.StatusUnauthorized)
+		app.templates.ExecuteTemplate(w, "error_toast", "Note not found")
 		return
 	}
 
-	app.templates.ExecuteTemplate(w, "notes", note)
+	app.templates.ExecuteTemplate(w, "individual_note", note)
 }
 
 // handlePostNote collects title and content from form and calls the postNote function with them as arguments.
 // It then renders the returned note to the ResponseWriter
 func (app *App) handlePostNote(w http.ResponseWriter, r *http.Request) {
 	userID := getUserIDFromContext(r)
+	title := "New Note"
+	content := "Lorem ipsum..."
+
+	note := app.postNote(userID, title, content)
+	redirectURL:= fmt.Sprintf("/notes/%d", note.ID)
+	w.Header().Add("HX-Redirect", redirectURL)
+	w.WriteHeader(http.StatusOK)
+}
+
+func (app *App) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
+	idString := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idString)
+	if err != nil{
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userID := getUserIDFromContext(r)
 	title := r.FormValue("title")
 	content := r.FormValue("content")
 
-	note := []Note{app.postNote(userID, title, content)}
-	app.templates.ExecuteTemplate(w, "notes", note)
+	app.updateNote(id, userID, title, content)
+	w.Header().Add("HX-Redirect", "/notes")
+	w.WriteHeader(http.StatusOK)
 }

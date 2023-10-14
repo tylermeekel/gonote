@@ -69,10 +69,9 @@ func startApp() {
 		log: log.Default(),
 	}
 
-	//Mount index handler, and router for notes
-	mux.Get("/", app.handleIndex)
-	mux.Mount("/", app.authRouter())
-	mux.Mount("/notes", app.noteRouter())
+	//Mount routers and utility handlers
+	mux.Mount("/", app.frontendRouter())
+	mux.Mount("/api", app.apiRouter())
 	mux.Get("/freshtoast", app.handleEmptyToast)
 
 	//Add static file server, pattern from Alex Edwards
@@ -110,4 +109,31 @@ func sendErrorToast(w http.ResponseWriter, errorMessage string) {
 // toast message.
 func (app *App) handleEmptyToast(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("<div id=\"toast\"></div>"))
+}
+
+func (app *App) frontendRouter() *chi.Mux{
+	router := chi.NewRouter()
+
+	//Pages
+	router.Get("/", app.handleIndex)
+	router.Get("/login", app.handleLoginPage)
+	router.Get("/register", app.handleRegisterPage)
+	router.Get("/notes", app.handleNotesPage)
+	router.Get("/notes/{id}", app.handleIndividualNotePage)
+
+	//Authentication - needs to be here for time being (issue with cookies on localhost)
+	// router.Post("/register", app.handleRegisterUser)
+	// router.Post("/login", app.handleLoginUser)
+	// router.Post("/logout", app.handleLogoutUser)
+
+	return router
+}
+
+func (app *App) apiRouter() *chi.Mux{
+	router := chi.NewRouter()
+
+	router.Mount("/notes", app.noteRouter())
+	router.Mount("/auth", app.authRouter())
+
+	return router
 }
