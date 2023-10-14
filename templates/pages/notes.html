@@ -1,5 +1,10 @@
-{{define "notes"}}
+{{define "notes_page"}}
 {{template "base_header" .HeaderData}}
-<h1>This is the notes page</h1>
+<h1 class="text-6xl font-bold text-center">Notes</h1>
+<div id="notes" hx-get="/api/notes" hx-trigger="load" class="flex flex-col items-center p-4 gap-2">
+</div>
+<form hx-post="/api/notes">
+    <button class="bg-sky-400 p-4 rounded-md fixed bottom-2 right-2 items-center justify-center text-center">New Note</button>
+</form>
 {{template "base_footer"}}
 {{end}}
