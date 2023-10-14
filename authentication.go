@@ -86,7 +86,7 @@ func (app *App) handleRegisterUser(w http.ResponseWriter, r *http.Request) {
 	user, err := app.createUser(username, password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		sendErrorToast(w, "Error: Internal Server Error")
+		app.sendErrorToast(w, "Error: Internal Server Error")
 	} else {
 		fmt.Printf("Created user \"%s\"\n", user.Username)
 		sendToast(w, "User successfully created")
@@ -104,15 +104,15 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	queriedUser, err := app.getUserByUsername(username)
-	if err != nil {
-		sendErrorToast(w, "Error: Internal Server Error")
+	if err != nil{
+		app.sendErrorToast(w, "Internal server error")
 		return
 	}
 
 	//Check hash and password and return an error if they do not match
 	err = bcrypt.CompareHashAndPassword([]byte(queriedUser.Password), []byte(password))
 	if err != nil || queriedUser.Username == "" {
-		sendErrorToast(w, "Incorrect username or password")
+		app.sendErrorToast(w, "Incorrect username or password")
 		return
 	}
 
@@ -122,7 +122,7 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 	signedString, err := signJWT(queriedUser.ID, expirationTime)
 	if err != nil {
 		app.log.Println(err.Error())
-		sendErrorToast(w, "Internal Server Error")
+		app.sendErrorToast(w, "Internal Server Error")
 		return
 	}
 

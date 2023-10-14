@@ -1,12 +1,8 @@
 {{define "error_toast"}}
-<div
-  id="toast"
-  hx-get="/freshtoast"
-  hx-swap="outerHTML swap:5s"
-  hx-trigger="load"
-  hx-swap-oob="outerHTML"
-  class="fixed top-2 right-2 h-24 w-56 bg-red-200 border-red-800 border text-red-800"
->
+<div></div>
+<div id="toast" hx-get="/freshtoast" hx-swap="outerHTML swap:5s" hx-trigger="load" hx-swap-oob="outerHTML"
+  class="fixed flex flex-col items-center bottom-2 right-2 h-24 w-56 bg-red-200 border-red-800 border rounded-md text-red-800 p-4">
+  <h1 class="text-lg font-bold">Error</h1>
   <p>{{.}}</p>
 </div>
 {{end}}

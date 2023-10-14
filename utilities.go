@@ -95,13 +95,8 @@ func sendToast(w http.ResponseWriter, message string) {
 
 // sendErrorToast takes a ResponseWriter and message string and sends back am error toast
 // notification to the client front end using the toast template
-func sendErrorToast(w http.ResponseWriter, errorMessage string) {
-	errorTemplate, err := template.ParseFiles("templates/components/errorToast.html")
-	if err != nil {
-		fmt.Println("error processing errorToast.html")
-	}
-
-	errorTemplate.Execute(w, errorMessage)
+func (app *App) sendErrorToast(w http.ResponseWriter, errorMessage string) {
+	app.templates.ExecuteTemplate(w, "error_toast", errorMessage)
 }
 
 // handleEmptyToast is called after a toast message has timed out on the front end
@@ -120,11 +115,6 @@ func (app *App) frontendRouter() *chi.Mux{
 	router.Get("/register", app.handleRegisterPage)
 	router.Get("/notes", app.handleNotesPage)
 	router.Get("/notes/{id}", app.handleIndividualNotePage)
-
-	//Authentication - needs to be here for time being (issue with cookies on localhost)
-	// router.Post("/register", app.handleRegisterUser)
-	// router.Post("/login", app.handleLoginUser)
-	// router.Post("/logout", app.handleLogoutUser)
 
 	return router
 }
