@@ -1,6 +1,5 @@
 {{define "individual_note_page"}}
 {{template "base_header" .HeaderData}}
-<div id="note" hx-get="/api/notes/{{.NoteID}}" hx-trigger="load"
-class="flex-1"></div>
+<div id="note" hx-get="/api/notes/{{.NoteID}}" hx-trigger="load" hx-swap="outerHTML"></div>
 {{template "base_footer"}}
 {{end}}

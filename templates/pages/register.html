@@ -1,5 +1,10 @@
 {{define "register"}}
 {{template "base_header" .HeaderData}}
-<h1>This is the register form</h1>
+<form hx-post="/api/auth/register" class="flex flex-col border rounded-md w-1/2 p-12 m-auto items-center gap-4 self-center justify-self-center">
+    <h1 class="text-3xl">Register</h1>
+    <input type="text" name="username" id="username" placeholder="Username" class="border-b outline-none text-lg">
+    <input type="password" name="password" id="password" placeholder="Password" class="border-b outline-none text-lg">
+    <button type="submit" class="bg-sky-400 rounded-md p-2 w-1/4">Go</button>
+</form>
 {{template "base_footer"}}
 {{end}}
