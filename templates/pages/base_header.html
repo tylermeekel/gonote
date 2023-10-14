@@ -14,9 +14,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{.Title}}</title>
     </head>
-    <body class="min-h-screen flex flex-col">
+    <body class="h-screen flex flex-col">
         <header class=" flex w-full h-20 border-b p-2 items-center justify-between">
-            <h1 class="font-semibold text-4xl">GoNote</h1>
+            <a href="/"><h1 class="text-4xl font-bold">eGo<span class="text-sky-400">Note</span></h1></a>
             <nav class="flex gap-4">
                 {{if .LoggedIn}}
                 <h2><a href="/notes">Notes</a></h2>
@@ -27,6 +27,6 @@
                 {{end}}
             </nav>
         </header>
-        <main class="flex flex-col p-6">
+        <main class="flex flex-col p-6 items-center h-full">
 {{end}}
 
