@@ -25,7 +25,7 @@ func (app *App) noteRouter() http.Handler {
 	//Routes
 	router.Get("/", app.handleGetAllNotes)
 	router.Get("/{id}", app.handleGetNoteByID)
-	router.Post("/", app.handlePostNote)
+	router.Post("/", app.handleNewNote)
 	router.Post("/{id}", app.handleUpdateNote)
 
 	return router
@@ -126,9 +126,9 @@ func (app *App) handleGetNoteByID(w http.ResponseWriter, r *http.Request) {
 	app.templates.ExecuteTemplate(w, "individual_note", note)
 }
 
-// handlePostNote collects title and content from form and calls the postNote function with them as arguments.
-// It then renders the returned note to the ResponseWriter
-func (app *App) handlePostNote(w http.ResponseWriter, r *http.Request) {
+// handleNewNote calls postNote with a default title and content.
+// It then redirects the user to the page to edit the new note
+func (app *App) handleNewNote(w http.ResponseWriter, r *http.Request) {
 	userID := getUserIDFromContext(r)
 	title := "New Note"
 	content := "Lorem ipsum..."
@@ -139,6 +139,8 @@ func (app *App) handlePostNote(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// handleUpdateNote gathers the title and content fields from the request form data and calls updateNote with them
+// It then redirects the user to the notes page
 func (app *App) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
 	idString := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idString)

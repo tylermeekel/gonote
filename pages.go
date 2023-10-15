@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -9,10 +8,11 @@ import (
 )
 
 type headerData struct {
-	Title    string
+	Title      string
 	HideHeader bool
 }
 
+// handleIndex is a http.HandlerFunc that renders the index page to the ResponseWriter
 func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	var data struct {
 		HeaderData headerData
@@ -24,10 +24,12 @@ func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	app.templates.ExecuteTemplate(w, "index", data)
 }
 
+// handleLoginPage is a http.HandlerFunc that renders the login page to the ResponseWriter, it will redirect the request if the user is logged in
 func (app *App) handleLoginPage(w http.ResponseWriter, r *http.Request) {
+	// check if user is logged in
 	userID := getUserIDFromContext(r)
 	if userID != 0 {
-		http.Redirect(w, r, "/", http.StatusUnauthorized)
+		http.Redirect(w, r, "/notes", http.StatusSeeOther)
 		return
 	}
 	var data struct {
@@ -40,10 +42,12 @@ func (app *App) handleLoginPage(w http.ResponseWriter, r *http.Request) {
 	app.templates.ExecuteTemplate(w, "login", data)
 }
 
+// handleRegisterPage is a http.HandlerFunc that renders the register page to the ResponseWriter, it will redirect the request if the user is logged in
 func (app *App) handleRegisterPage(w http.ResponseWriter, r *http.Request) {
+	// check if user is logged in
 	userID := getUserIDFromContext(r)
 	if userID != 0 {
-		http.Redirect(w, r, "/notes", http.StatusUnauthorized)
+		http.Redirect(w, r, "/notes", http.StatusSeeOther)
 		return
 	}
 	var data struct {
@@ -56,10 +60,12 @@ func (app *App) handleRegisterPage(w http.ResponseWriter, r *http.Request) {
 	app.templates.ExecuteTemplate(w, "register", data)
 }
 
+// handleNotesPage is a http.Handler that renders the notes page to the ResponseWriter, it will redirect the request if the user is not logged in
 func (app *App) handleNotesPage(w http.ResponseWriter, r *http.Request) {
+	// confirm that user is logged in
 	userID := getUserIDFromContext(r)
 	if userID == 0 {
-		http.Redirect(w, r, "/", http.StatusUnauthorized)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	var data struct {
@@ -71,28 +77,30 @@ func (app *App) handleNotesPage(w http.ResponseWriter, r *http.Request) {
 	app.templates.ExecuteTemplate(w, "notes_page", data)
 }
 
+// handleIndividualNotesPage is a http.Handler that renders a specific note's page to the ResponseWriter, it will redirect the request if the user is not logged in
 func (app *App) handleIndividualNotePage(w http.ResponseWriter, r *http.Request) {
+	// check if user is logged in
 	userID := getUserIDFromContext(r)
-	if userID == 0{
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Unauthorized"))
+	if userID == 0 {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
+	// get ID value to display correct note
 	idString := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idString)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Bad Request"))
 		return
 	}
 
-	var data struct{
+	var data struct {
 		HeaderData headerData
-		NoteID int
+		NoteID     int
 	}
 
-	data.HeaderData.Title = fmt.Sprintf("Note #%d", id)
+	data.HeaderData.Title = "Editing Note"
 	data.NoteID = id
 
 	app.templates.ExecuteTemplate(w, "individual_note_page", data)

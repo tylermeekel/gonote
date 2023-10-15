@@ -54,15 +54,18 @@ func parseJWT(tokenString string) (int, error) {
 	}
 }
 
+// getUserIDFromContext reads the userIDKey from the request context and returns it.
+// If there is an issue asserting the type as int, it returns 0 (not logged in)
 func getUserIDFromContext(r *http.Request) int {
 	userID, ok := r.Context().Value(userIDKey).(int)
-	if userID == 0 || !ok {
+	if !ok {
 		return 0
 	}
 
 	return userID
 }
 
+// authRouter registers the appropriate routes for the authentication api
 func (app *App) authRouter() *chi.Mux {
 	router := chi.NewRouter()
 
@@ -84,22 +87,27 @@ func (app *App) handleRegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	validator := NewValidator()
 
+	//Validate username as password
 	validator.ValidateUsername(givenUsername)
 	validator.ValidatePassword(givenPassword)
 
-	if !validator.IsValid(){
+	//If there are any errors, return an error message with all of the errors that were registered
+	if !validator.IsValid() {
 		app.templates.ExecuteTemplate(w, "input_error", validator.Errors)
 		return
 	}
-	
-	validUsername := ValidUsername(givenUsername)
-	validPassword := ValidPassword(givenPassword) 
 
+	//Assert that username and password are valid
+	validUsername := ValidUsername(givenUsername)
+	validPassword := ValidPassword(givenPassword)
+
+	// Generate a hash from the validated password
 	hash, err := bcrypt.GenerateFromPassword([]byte(validPassword), 10)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
+	// Add user to database with validated username and password
 	user, err := app.createUser(validUsername, hash)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -155,6 +163,7 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// handleLogoutUser deletes the token cookie and redirects the user to the index page
 func (app *App) handleLogoutUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("HX-Redirect", "/")
 	http.SetCookie(w, &http.Cookie{
@@ -169,8 +178,12 @@ func (app *App) handleLogoutUser(w http.ResponseWriter, r *http.Request) {
 
 //Middleware
 
+// checkAuthentication is middleware that checks the jwt token cookie value and parses it,
+// if the token doesn't exist or isn't valid, it sets the userID context value to 0, (signalling the user is logged out)
+// If the token is valid, it parses the userID from it, and sets the userID context value to that value.
 func checkAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//Read token, set context value to 0 if any error
 		token, err := r.Cookie("token")
 		if err != nil {
 			ctx := context.WithValue(r.Context(), userIDKey, 0)
@@ -178,6 +191,7 @@ func checkAuthentication(next http.Handler) http.Handler {
 			return
 		}
 
+		//If any error parsing token, set context value to 0
 		userID, err := parseJWT(token.Value)
 		if err != nil {
 			ctx := context.WithValue(r.Context(), userIDKey, 0)
@@ -185,6 +199,7 @@ func checkAuthentication(next http.Handler) http.Handler {
 			return
 		}
 
+		//Set context value to userID, and call next middleware
 		ctx := context.WithValue(r.Context(), userIDKey, userID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))

@@ -106,10 +106,10 @@ func (app *App) handleEmptyToast(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("<div id=\"toast\"></div>"))
 }
 
+// frontendRouter returns a router with the appropriate pages for the front end registered as paths
 func (app *App) frontendRouter() *chi.Mux{
 	router := chi.NewRouter()
 
-	//Pages
 	router.Get("/", app.handleIndex)
 	router.Get("/login", app.handleLoginPage)
 	router.Get("/register", app.handleRegisterPage)
@@ -119,6 +119,7 @@ func (app *App) frontendRouter() *chi.Mux{
 	return router
 }
 
+// apiRouter returns a router with the appropriately mounted routes for the API
 func (app *App) apiRouter() *chi.Mux{
 	router := chi.NewRouter()
 
