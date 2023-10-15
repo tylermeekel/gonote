@@ -18,7 +18,7 @@ func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 		HeaderData headerData
 	}
 
-	data.HeaderData.Title = "GoNote"
+	data.HeaderData.Title = "eGoNote"
 
 	userID := getUserIDFromContext(r)
 	if userID == 0 {
