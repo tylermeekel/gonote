@@ -1,0 +1,13 @@
+{{define "input_error"}}
+<div id="input_error" class="flex flex-col gap-2 bg-red-200 border-red-800 border rounded-md text-red-800 p-4 max-w-prose" hx-swap-oob="outerHTML">
+    <h1 class="font-bold text-2xl">Input Error:</h1>
+    {{range $key, $value := .}}
+    <h2 class="font-bold text-lg">{{$key}}:</h2>
+    <ul>
+        {{range $value}}
+        <li class="list-disc list-inside">{{.}}</li>
+        {{end}}
+    </ul>
+    {{end}}
+</div>
+{{end}}

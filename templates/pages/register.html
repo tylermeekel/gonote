@@ -1,10 +1,14 @@
 {{define "register"}}
 {{template "base_header" .HeaderData}}
-<form hx-post="/api/auth/register" class="flex flex-col border rounded-md w-1/2 p-12 m-auto items-center gap-4 self-center justify-self-center">
-    <h1 class="text-3xl">Register</h1>
-    <input type="text" name="username" id="username" placeholder="Username" class="border-b outline-none text-lg">
-    <input type="password" name="password" id="password" placeholder="Password" class="border-b outline-none text-lg">
-    <button type="submit" class="bg-sky-400 rounded-md p-2 w-1/4">Go</button>
-</form>
+<div class="border rounded-md w-1/2 m-auto p-24">
+    <form hx-post="/api/auth/register" hx-swap="none" class="flex flex-col items-center gap-4">
+        <h1 class="text-3xl">Register</h1>
+        <input type="text" name="username" id="username" placeholder="Username" class="border-b outline-none text-lg focus:border-gray-500">
+        <input type="password" name="password" id="password" placeholder="Password" class="border-b outline-none text-lg focus:border-gray-500">
+        <button type="submit" class="font-bold shadow-sm shadow-gray-500 hover:bg-sky-400 hover:text-white active:shadow-inner active:shadow-black py-2 px-8 text-lg rounded-full">Go</button>
+    </form>
+    <p class="text-center text-gray-400"><a href="/login">or login</a></p>
+    <div id="input_error"></div>
+</div>
 {{template "base_footer"}}
 {{end}}

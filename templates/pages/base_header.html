@@ -14,19 +14,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{.Title}}</title>
     </head>
-    <body class="h-screen flex flex-col">
-        <header class=" flex w-full h-20 border-b p-2 items-center justify-between">
-            <a href="/"><h1 class="text-4xl font-bold">eGo<span class="text-sky-400">Note</span></h1></a>
+    <body class="min-h-screen h-screen flex flex-col">
+        {{if not .HideHeader}}
+        <header class="flex w-full h-20 border-b p-2 items-center justify-end">
             <nav class="flex gap-4">
-                {{if .LoggedIn}}
                 <h2><a href="/notes">Notes</a></h2>
                 <h2><a hx-post="/api/auth/logout" hx-swap="none">Logout</a></h2>
-                {{else}}
-                <h2><a href="/login">Login</a></h2>
-                <h2><a href="/register">Register</a></h2>
-                {{end}}
             </nav>
         </header>
+        {{end}}
         <main class="flex flex-col p-6 items-center h-full">
 {{end}}
 

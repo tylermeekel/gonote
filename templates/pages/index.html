@@ -1,7 +1,11 @@
 {{define "index"}}
 {{template "base_header" .HeaderData}}
-<img src="/static/images/logo.png" alt="The eGoNote Logo" class="w-1/2 lg:w-1/4 aspect-square">
-<h1 class="text-6xl">Welcome to eGoNote!</h1>
-<p class="text-gray-500">To begin, click "Register" or "Login" in the top right</p>
+<div class="h-full flex flex-col justify-center items-center">
+    <img src="/static/images/logo.png" alt="The eGoNote Logo" class="w-1/2 aspect-square">
+    <nav class="flex flex-col gap-2">
+        <a href="/login"><button class="font-bold shadow-sm shadow-gray-500 hover:bg-sky-400 hover:text-white active:shadow-inner active:shadow-black py-2 px-8 text-lg rounded-full">Login</button></a>
+        <a href="/register" class="text-center text-gray-400">or <span class="underline">register</span></a>
+    </nav>
+</div>
 {{template "base_footer"}}
 {{end}}

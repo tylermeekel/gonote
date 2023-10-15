@@ -9,8 +9,8 @@ import (
 )
 
 type headerData struct {
-	LoggedIn bool
 	Title    string
+	HideHeader bool
 }
 
 func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -19,13 +19,7 @@ func (app *App) handleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.HeaderData.Title = "eGoNote"
-
-	userID := getUserIDFromContext(r)
-	if userID == 0 {
-		data.HeaderData.LoggedIn = false
-	} else {
-		data.HeaderData.LoggedIn = true
-	}
+	data.HeaderData.HideHeader = true
 
 	app.templates.ExecuteTemplate(w, "index", data)
 }
@@ -41,7 +35,7 @@ func (app *App) handleLoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.HeaderData.Title = "Login"
-	data.HeaderData.LoggedIn = false
+	data.HeaderData.HideHeader = true
 
 	app.templates.ExecuteTemplate(w, "login", data)
 }
@@ -49,7 +43,7 @@ func (app *App) handleLoginPage(w http.ResponseWriter, r *http.Request) {
 func (app *App) handleRegisterPage(w http.ResponseWriter, r *http.Request) {
 	userID := getUserIDFromContext(r)
 	if userID != 0 {
-		http.Redirect(w, r, "/", http.StatusUnauthorized)
+		http.Redirect(w, r, "/notes", http.StatusUnauthorized)
 		return
 	}
 	var data struct {
@@ -57,7 +51,7 @@ func (app *App) handleRegisterPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.HeaderData.Title = "Register"
-	data.HeaderData.LoggedIn = false
+	data.HeaderData.HideHeader = true
 
 	app.templates.ExecuteTemplate(w, "register", data)
 }
@@ -70,12 +64,9 @@ func (app *App) handleNotesPage(w http.ResponseWriter, r *http.Request) {
 	}
 	var data struct {
 		HeaderData headerData
-		UserID int
 	}
 
 	data.HeaderData.Title = "Notes"
-	data.HeaderData.LoggedIn = true
-	data.UserID = userID
 
 	app.templates.ExecuteTemplate(w, "notes_page", data)
 }
@@ -101,7 +92,6 @@ func (app *App) handleIndividualNotePage(w http.ResponseWriter, r *http.Request)
 		NoteID int
 	}
 
-	data.HeaderData.LoggedIn = true
 	data.HeaderData.Title = fmt.Sprintf("Note #%d", id)
 	data.NoteID = id
 
