@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -77,13 +78,29 @@ func (app *App) authRouter() *chi.Mux {
 // with the username and hashed password. If everything goes well it sends a toast
 // message back to the user to let them know.
 func (app *App) handleRegisterUser(w http.ResponseWriter, r *http.Request) {
-	username := r.FormValue("username")
-	password, err := bcrypt.GenerateFromPassword([]byte(r.FormValue("password")), 10)
+	//Trim leading and trailing whitespace from username and password given
+	givenUsername := strings.TrimSpace(strings.ToLower(r.FormValue("username")))
+	givenPassword := strings.TrimSpace(r.FormValue("password"))
+
+	validator := NewValidator()
+
+	validator.ValidateUsername(givenUsername)
+	validator.ValidatePassword(givenPassword)
+
+	if !validator.IsValid(){
+		app.templates.ExecuteTemplate(w, "input_error", validator.Errors)
+		return
+	}
+	
+	validUsername := ValidUsername(givenUsername)
+	validPassword := ValidPassword(givenPassword) 
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(validPassword), 10)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	user, err := app.createUser(username, password)
+	user, err := app.createUser(validUsername, hash)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		app.sendErrorToast(w, "Error: Internal Server Error")
@@ -104,7 +121,7 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	queriedUser, err := app.getUserByUsername(username)
-	if err != nil{
+	if err != nil {
 		app.sendErrorToast(w, "Internal server error")
 		return
 	}

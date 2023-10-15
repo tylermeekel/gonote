@@ -83,7 +83,7 @@ func (app *App) updateNote(id, userID int, title, content string) {
 	row := app.db.QueryRow("UPDATE notes SET title = $1, content = $2 WHERE id = $3 AND user_id = $4", title, content, id, userID)
 	err := row.Scan()
 	if err != nil{
-		fmt.Printf(err.Error())
+		fmt.Println(err.Error())
 	}
 }
 

@@ -21,7 +21,7 @@ func (app *App) getUserByUsername(username string) (User, error) {
 }
 
 // createUser takes a username and password hash as input and inserts them into the database
-func (app *App) createUser(username string, passwordHash []byte) (User, error) {
+func (app *App) createUser(username ValidUsername, passwordHash []byte) (User, error) {
 	var user User
 	row, err := app.db.Query("INSERT INTO users(username, password) VALUES($1, $2) RETURNING *", username, passwordHash)
 	if err != nil {
