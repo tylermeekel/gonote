@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -62,7 +63,7 @@ func (app *App) getNoteByID(id, userID int) Note {
 
 // postNote takes a user id, title and content as arguments and inserts a new note into the database
 // and then returns a Note object
-func (app *App) postNote(userID int, title, content string) Note{
+func (app *App) postNote(userID int, title, content string) Note {
 	var note Note
 
 	row, err := app.db.Query("INSERT INTO notes(user_id, title, content) VALUES($1, $2, $3) RETURNING *", userID, title, content)
@@ -82,7 +83,7 @@ func (app *App) postNote(userID int, title, content string) Note{
 func (app *App) updateNote(id, userID int, title, content string) {
 	row := app.db.QueryRow("UPDATE notes SET title = $1, content = $2 WHERE id = $3 AND user_id = $4", title, content, id, userID)
 	err := row.Scan()
-	if err != nil{
+	if err != nil {
 		fmt.Println(err.Error())
 	}
 }
@@ -123,7 +124,20 @@ func (app *App) handleGetNoteByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.templates.ExecuteTemplate(w, "individual_note", note)
+	if r.URL.Query().Get("edit") == "true" {
+		app.templates.ExecuteTemplate(w, "edit_note", note)
+	} else {
+		safeHTML := mdToHTML(note.Content)
+		safeHTMLString := string(safeHTML)
+		data := struct{
+			Note Note
+			NoteTemplate template.HTML
+		}{
+			Note: note,
+			NoteTemplate: template.HTML(safeHTMLString),
+		}
+		app.templates.ExecuteTemplate(w, "individual_note", data)
+	}
 }
 
 // handleNewNote calls postNote with a default title and content.
@@ -134,7 +148,7 @@ func (app *App) handleNewNote(w http.ResponseWriter, r *http.Request) {
 	content := "Lorem ipsum..."
 
 	note := app.postNote(userID, title, content)
-	redirectURL:= fmt.Sprintf("/notes/%d", note.ID)
+	redirectURL := fmt.Sprintf("/notes/%d", note.ID)
 	w.Header().Add("HX-Redirect", redirectURL)
 	w.WriteHeader(http.StatusOK)
 }
@@ -144,7 +158,7 @@ func (app *App) handleNewNote(w http.ResponseWriter, r *http.Request) {
 func (app *App) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
 	idString := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idString)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -154,6 +168,6 @@ func (app *App) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 
 	app.updateNote(id, userID, title, content)
-	w.Header().Add("HX-Redirect", "/notes")
+	w.Header().Add("HX-Redirect", fmt.Sprintf("/notes/%d", id))
 	w.WriteHeader(http.StatusOK)
 }

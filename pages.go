@@ -100,8 +100,13 @@ func (app *App) handleIndividualNotePage(w http.ResponseWriter, r *http.Request)
 		NoteID     int
 	}
 
-	data.HeaderData.Title = "Editing Note"
 	data.NoteID = id
 
-	app.templates.ExecuteTemplate(w, "individual_note_page", data)
+	if r.URL.Query().Get("edit") == "true" {
+		data.HeaderData.Title = "Editing Note"
+		app.templates.ExecuteTemplate(w, "edit_note_page", data)
+	} else {
+		data.HeaderData.Title = "Viewing Note"
+		app.templates.ExecuteTemplate(w, "individual_note_page", data)
+	}
 }

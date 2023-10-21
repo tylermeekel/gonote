@@ -1,0 +1,5 @@
+{{define "edit_note_page"}}
+{{template "base_header" .HeaderData}}
+<div id="note" hx-get="/api/notes/{{.NoteID}}?edit=true" hx-trigger="load" hx-swap="outerHTML"></div>
+{{template "base_footer"}}
+{{end}}

@@ -8,8 +8,12 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -127,4 +131,21 @@ func (app *App) apiRouter() *chi.Mux{
 	router.Mount("/auth", app.authRouter())
 
 	return router
+}
+
+func mdToHTML(md string) string{
+	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
+	p := parser.NewWithExtensions(extensions)
+	doc := p.Parse([]byte(md))
+
+	htmlFlags := html.CommonFlags | html.HrefTargetBlank
+	opts := html.RendererOptions{Flags: htmlFlags}
+	renderer := html.NewRenderer(opts)
+
+	unsafeHTMLDoc := markdown.Render(doc, renderer)
+
+	policy := bluemonday.UGCPolicy()
+	safeHTML := policy.SanitizeBytes(unsafeHTMLDoc)
+
+	return string(safeHTML)
 }
