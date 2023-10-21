@@ -143,7 +143,7 @@ func (app *App) handleLoginUser(w http.ResponseWriter, r *http.Request) {
 
 	//set expiration time and create JWT using user ID and expiration time and return error if there is
 	//an error generating the jwt
-	expirationTime := time.Now().Add(10 * time.Minute)
+	expirationTime := time.Now().Add(4 * time.Hour)
 	signedString, err := signJWT(queriedUser.ID, expirationTime)
 	if err != nil {
 		app.log.Println(err.Error())
