@@ -28,6 +28,7 @@ func (app *App) noteRouter() http.Handler {
 	router.Get("/{id}", app.handleGetNoteByID)
 	router.Post("/", app.handleNewNote)
 	router.Post("/{id}", app.handleUpdateNote)
+	router.Delete("/{id}", app.handleDeleteNote)
 
 	return router
 }
@@ -88,6 +89,14 @@ func (app *App) updateNote(id, userID int, title, content string) {
 	}
 }
 
+func (app *App) deleteNote(id, userID int) {
+	row := app.db.QueryRow("DELETE FROM notes WHERE id = $1 AND user_id = $2 RETURNING id", id, userID)
+	err := row.Scan()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
 //Handlers
 
 // handleGetAllNotes calls the queryAllNotes function and renders the returned notes to the ResponseWriter
@@ -129,11 +138,11 @@ func (app *App) handleGetNoteByID(w http.ResponseWriter, r *http.Request) {
 	} else {
 		safeHTML := mdToHTML(note.Content)
 		safeHTMLString := string(safeHTML)
-		data := struct{
-			Note Note
+		data := struct {
+			Note         Note
 			NoteTemplate template.HTML
 		}{
-			Note: note,
+			Note:         note,
 			NoteTemplate: template.HTML(safeHTMLString),
 		}
 		app.templates.ExecuteTemplate(w, "individual_note", data)
@@ -169,5 +178,20 @@ func (app *App) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
 
 	app.updateNote(id, userID, title, content)
 	w.Header().Add("HX-Redirect", fmt.Sprintf("/notes/%d", id))
+	w.WriteHeader(http.StatusOK)
+}
+
+func (app *App) handleDeleteNote(w http.ResponseWriter, r *http.Request) {
+	idString := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idString)
+	if err != nil{
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userID := getUserIDFromContext(r)
+
+	app.deleteNote(id, userID)
+	w.Header().Add("HX-Redirect", "/notes")
 	w.WriteHeader(http.StatusOK)
 }

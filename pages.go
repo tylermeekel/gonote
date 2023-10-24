@@ -72,7 +72,7 @@ func (app *App) handleNotesPage(w http.ResponseWriter, r *http.Request) {
 		HeaderData headerData
 	}
 
-	data.HeaderData.Title = "Notes"
+	data.HeaderData.Title = "Notebook"
 
 	app.templates.ExecuteTemplate(w, "notes_page", data)
 }

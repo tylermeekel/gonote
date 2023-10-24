@@ -3,7 +3,7 @@
 <div class="border border-sky-400 rounded-md flex flex-col w-1/2 p-4">
     <h1 class="text-2xl font-bold cursor-pointer"><a href="/notes/{{.ID}}">{{.Title}}</a></h1>
     <p class="text-lg text-gray-600">{{.Content}}</p>
-    <a href="/notes/{{.ID}}?edit=true" class="self-end">Edit</a>
+    <a href="/notes/{{.ID}}?edit=true" class="self-end" title="Edit Note"><i class="fa-solid fa-pen hover:text-sky-400"></i></a>
 </div>
 {{end}}
 {{end}}

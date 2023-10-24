@@ -5,9 +5,11 @@
         <!-- HTMX -->
         <script src="/static/htmx.min.js"></script>
         <!-- Tailwind -->
-        <link rel="stylesheet" href="/static/css/tailwind.css">
+        <!-- <link rel="stylesheet" href="/static/css/tailwind.css"> -->
+        <!-- Font Awesome -->
+        <script src="https://kit.fontawesome.com/af3feccbc9.js" crossorigin="anonymous"></script>
         <!-- Tailwind CDN - for now -->
-        <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+        <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" href="/static/css/styles.css">
         
         <link rel="shortcut icon" href="/static/images/icon.png">
@@ -18,10 +20,10 @@
     </head>
     <body class="min-h-screen h-screen flex flex-col">
         {{if not .HideHeader}}
-        <header class="flex w-full h-20 border-b p-2 items-center justify-end">
+        <header class="flex w-full p-2 items-center justify-end">
             <nav class="flex gap-4">
-                <h2><a href="/notes">Notes</a></h2>
-                <h2><a hx-post="/api/auth/logout" hx-swap="none" class="cursor-pointer">Logout</a></h2>
+                <h2><a href="/notes" title="Open Notebook"><i class="fa-solid fa-book text-xl hover:text-sky-400"></i></a></h2>
+                <h2><a hx-post="/api/auth/logout" hx-swap="none" class="cursor-pointer" title="Logout"><i class="fa-solid fa-right-from-bracket text-xl hover:text-red-400"></i></a></h2>
             </nav>
         </header>
         {{end}}
