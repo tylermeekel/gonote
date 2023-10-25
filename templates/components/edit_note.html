@@ -1,7 +1,7 @@
 {{define "edit_note"}}
     <form class="flex flex-col justify-center h-full w-full" hx-post="/api/notes/{{.ID}}" hx-swap="none">
-        <input autocomplete="off" class="w-1/2 self-center font-bold text-5xl text-center border-b-2 focus:outline-none" value="{{.Title}}" name="title">
-        <textarea autocomplete="off" class="w-1/2 h-full self-center text-xl p-4 focus:outline-none resize-none" name="content" id="content">{{.Content}}</textarea>
+        <input autocomplete="off" class="w-3/4 lg:w-1/2 self-center font-bold text-5xl text-center border-b-2 focus:outline-none" value="{{.Title}}" name="title" title="Title" placeholder="Title">
+        <textarea autocomplete="off" class="w-3/4 lg:w-1/2 h-full self-center text-xl p-4 focus:outline-none resize-none" name="content" id="content" title="content" placeholder="Content">{{.Content}}</textarea>
         <div class="fixed bottom-2 right-2 flex gap-2">
             <button type="submit" title="Save"><i class="fa-solid fa-floppy-disk text-2xl hover:text-sky-400"></i></button>
             <button hx-delete="/api/notes/{{.ID}}" hx-confirm="Are you sure you wish to delete this note?" title="Delete"><i class="fa-solid fa-trash text-2xl hover:text-red-400"></i></button>

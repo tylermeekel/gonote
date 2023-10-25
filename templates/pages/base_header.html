@@ -20,10 +20,10 @@
     </head>
     <body class="min-h-screen h-screen flex flex-col">
         {{if not .HideHeader}}
-        <header class="flex w-full p-2 items-center justify-end">
-            <nav class="flex gap-4">
-                <h2><a href="/notes" title="Open Notebook"><i class="fa-solid fa-book text-xl hover:text-sky-400"></i></a></h2>
-                <h2><a hx-post="/api/auth/logout" hx-swap="none" class="cursor-pointer" title="Logout"><i class="fa-solid fa-right-from-bracket text-xl hover:text-red-400"></i></a></h2>
+        <header>
+            <nav class="flex gap-4 fixed top-2 right-2">
+                <h2><a href="/notes" title="Open Notebook"><i class="fa-solid fa-book text-2xl hover:text-sky-400"></i></a></h2>
+                <h2><a hx-post="/api/auth/logout" hx-swap="none" class="cursor-pointer" title="Logout"><i class="fa-solid fa-right-from-bracket text-2xl hover:text-red-400"></i></a></h2>
             </nav>
         </header>
         {{end}}

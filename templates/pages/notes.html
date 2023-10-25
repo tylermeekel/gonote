@@ -1,8 +1,8 @@
 {{define "notes_page"}}
 {{template "base_header" .HeaderData}}
 <h1 class="text-6xl font-bold text-center">Notebook</h1>
-<div id="notes" hx-get="/api/notes" hx-trigger="load" class="flex flex-col items-center p-4 gap-2 w-full">
-    <i class="fa-solid fa-spinner fa-spin-pulse text-3xl text-sky-400"></i>
+<div id="notes" hx-get="/api/notes" hx-trigger="load" class="grid gap-4 p-4">
+    <p>Loading...</p>
 </div>
 <button hx-post="/api/notes" class="fixed bottom-2 right-2 flex items-center justify-center" title="New Note"><i class="fa-solid fa-plus text-3xl hover:text-green-400"></i></button>
 {{template "base_footer"}}

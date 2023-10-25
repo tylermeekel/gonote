@@ -10,11 +10,12 @@ import (
 )
 
 type Note struct {
-	ID        int
-	UserID    int
-	Title     string
-	Content   string
-	CreatedAt string
+	ID          int
+	UserID      int
+	Title       string
+	Content     string
+	ContentHTML template.HTML
+	CreatedAt   string
 }
 
 //Functions
@@ -136,16 +137,10 @@ func (app *App) handleGetNoteByID(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("edit") == "true" {
 		app.templates.ExecuteTemplate(w, "edit_note", note)
 	} else {
-		safeHTML := mdToHTML(note.Content)
-		safeHTMLString := string(safeHTML)
-		data := struct {
-			Note         Note
-			NoteTemplate template.HTML
-		}{
-			Note:         note,
-			NoteTemplate: template.HTML(safeHTMLString),
-		}
-		app.templates.ExecuteTemplate(w, "individual_note", data)
+		safeHTMLString := mdToHTML(note.Content)
+		safeHTML := template.HTML(safeHTMLString)
+		note.ContentHTML = safeHTML
+		app.templates.ExecuteTemplate(w, "individual_note", note)
 	}
 }
 
@@ -184,7 +179,7 @@ func (app *App) handleUpdateNote(w http.ResponseWriter, r *http.Request) {
 func (app *App) handleDeleteNote(w http.ResponseWriter, r *http.Request) {
 	idString := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idString)
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

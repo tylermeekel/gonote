@@ -1,9 +1,9 @@
 {{define "notes"}}
 {{range .}}
-<div class="border border-sky-400 rounded-md flex flex-col w-1/2 p-4">
-    <h1 class="text-2xl font-bold cursor-pointer"><a href="/notes/{{.ID}}">{{.Title}}</a></h1>
-    <p class="text-lg text-gray-600">{{.Content}}</p>
-    <a href="/notes/{{.ID}}?edit=true" class="self-end" title="Edit Note"><i class="fa-solid fa-pen hover:text-sky-400"></i></a>
+<div class="border rounded-md flex flex-col p-4 relative">
+    <h1 class="text-2xl font-bold cursor-pointer hover:text-sky-400 w-fit underline underline-offset-2"><a href="/notes/{{.ID}}">{{.Title}}</a></h1>
+    <p class="text-lg text-gray-600 line-clamp-[10]">{{.Content}}</p>
+    <a href="/notes/{{.ID}}?edit=true" class="absolute right-2 bottom-2" title="Edit Note"><i class="fa-solid fa-pen hover:text-sky-400"></i></a>
 </div>
 {{end}}
 {{end}}
