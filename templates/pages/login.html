@@ -1,6 +1,6 @@
 {{define "login"}}
 {{template "base_header" .HeaderData}}
-<div class="border rounded-md w-1/2 m-auto p-24">
+<div class="lg:border rounded-md lg:w-1/2 m-auto lg:p-24">
     <form hx-post="/api/auth/login" hx-swap="none" class="flex flex-col items-center gap-4">
         <h1 class="text-3xl">Login</h1>
         <input type="text" name="username" id="username" placeholder="Username" class="border-b outline-none text-lg">

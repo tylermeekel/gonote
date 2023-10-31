@@ -21,11 +21,12 @@ import (
 
 type App struct {
 	templates *template.Template
-	db  *sql.DB
-	log *log.Logger
+	db        *sql.DB
+	log       *log.Logger
 }
 
 type contextKey string
+
 const userIDKey contextKey = "userID"
 
 // initializeApp initializes the app database and routes and starts the HTTP server on the given port
@@ -69,8 +70,8 @@ func startApp() {
 	//Create new app struct to pass db connection
 	app := &App{
 		templates: templates,
-		db:  db,
-		log: log.Default(),
+		db:        db,
+		log:       log.Default(),
 	}
 
 	//Mount routers and utility handlers
@@ -111,7 +112,7 @@ func (app *App) handleEmptyToast(w http.ResponseWriter, r *http.Request) {
 }
 
 // frontendRouter returns a router with the appropriate pages for the front end registered as paths
-func (app *App) frontendRouter() *chi.Mux{
+func (app *App) frontendRouter() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Get("/", app.handleIndex)
@@ -119,21 +120,23 @@ func (app *App) frontendRouter() *chi.Mux{
 	router.Get("/register", app.handleRegisterPage)
 	router.Get("/notes", app.handleNotesPage)
 	router.Get("/notes/{id}", app.handleIndividualNotePage)
+	router.Get("/sharelink/{id}", app.handleSharelinkPage)
 
 	return router
 }
 
 // apiRouter returns a router with the appropriately mounted routes for the API
-func (app *App) apiRouter() *chi.Mux{
+func (app *App) apiRouter() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Mount("/notes", app.noteRouter())
 	router.Mount("/auth", app.authRouter())
+	router.Mount("/sharelink", app.sharelinkRouter())
 
 	return router
 }
 
-func mdToHTML(md string) string{
+func mdToHTML(md string) string {
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs | parser.NoEmptyLineBeforeBlock
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse([]byte(md))

@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-chi/chi/v5"
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -91,7 +91,7 @@ func (app *App) handleRegisterUser(w http.ResponseWriter, r *http.Request) {
 	validator.ValidateUsername(givenUsername)
 	validator.ValidatePassword(givenPassword)
 
-	//If there are any errors, return an error message with all of the errors that were registered
+	//If there are any errors, return an error message with all the errors that were registered
 	if !validator.IsValid() {
 		app.templates.ExecuteTemplate(w, "input_error", validator.Errors)
 		return

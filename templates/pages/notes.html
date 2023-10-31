@@ -1,6 +1,6 @@
 {{define "notes_page"}}
 {{template "base_header" .HeaderData}}
-<h1 class="text-6xl font-bold text-center">Notebook</h1>
+<h1 class="text-4xl lg:text-6xl font-bold text-center">Notebook</h1>
 <div id="notes" hx-get="/api/notes" hx-trigger="load" class="grid gap-4 p-4">
     <p>Loading...</p>
 </div>

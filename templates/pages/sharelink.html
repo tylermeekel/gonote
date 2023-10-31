@@ -1,0 +1,5 @@
+{{define "sharelink_page"}}
+{{template "base_header" .HeaderData}}
+<div id="note" hx-get="/api/sharelink/{{.ID}}" hx-trigger="load" hx-swap="outerHTML"></div>
+{{template "base_footer"}}
+{{end}}

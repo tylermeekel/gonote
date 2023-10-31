@@ -1,7 +1,7 @@
 {{define "individual_note"}}
-    <div class="flex flex-col justify-center h-full w-full">
-        <h1 class="w-1/2 self-center font-bold text-5xl text-center border-b-2" name="title">{{.Title}}</h1>
-        <div class="w-1/2 h-full self-center text-xl p-4 overflow-y-auto" id="content">{{.ContentHTML}}</div>
+    <div class="flex flex-col justify-center h-full w-3/4 lg:w-1/2">
+        <h1 class="self-center font-bold text-4xl lg:text-5xl text-center border-b-2" name="title">{{.Title}}</h1>
+        <div class=" h-full self-center text-xl p-4 overflow-y-auto" id="content">{{.ContentHTML}}</div>
         <a href="/notes/{{.ID}}?edit=true"><button class="fixed bottom-2 right-2" title="Edit"><i class="fa-solid fa-pen hover:text-sky-400 text-2xl"></i></button></a>
     </div>
 {{end}}

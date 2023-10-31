@@ -110,3 +110,23 @@ func (app *App) handleIndividualNotePage(w http.ResponseWriter, r *http.Request)
 		app.templates.ExecuteTemplate(w, "individual_note_page", data)
 	}
 }
+
+func (app *App) handleSharelinkPage(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	data := struct {
+		HeaderData headerData
+		ID         string
+	}{
+		headerData{
+			Title:      "Viewing Sharelink",
+			HideHeader: true,
+		},
+		id,
+	}
+	err := app.templates.ExecuteTemplate(w, "sharelink_page", data)
+	if err != nil {
+		app.log.Println("Error processing template: ", err.Error())
+	}
+
+}
